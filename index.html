@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>iIntothewind</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="iIntothewind">
+<meta property="og:url" content="https://iintothewind.github.io/index.html">
+<meta property="og:site_name" content="iIntothewind">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="Chen Yinghua">
+<meta name="twitter:card" content="summary">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">iIntothewind</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://iintothewind.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-the-reason-of-NoClassDefFoundError-and-how-to-fix-it" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/08/the-reason-of-NoClassDefFoundError-and-how-to-fix-it/" class="article-date">
+  <time datetime="2020-05-08T07:48:27.000Z" itemprop="datePublished">2020-05-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/08/the-reason-of-NoClassDefFoundError-and-how-to-fix-it/">the reason of NoClassDefFoundError and how to fix it</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="problem"><a href="#problem" class="headerlink" title="problem"></a>problem</h2><p>Recently some team members reported that some instance of our application occsionally failed to serve an upload request becasue it constantly threw the same error:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">st=java.lang.NoClassDefFoundError: Could not initialize <span class="class"><span class="keyword">class</span> <span class="title">xxx</span>.<span class="title">SomeUtil</span></span></span><br><span class="line">at xxxImpl.upload(xxx.Java:xxx)</span><br><span class="line">at sun.reflect.GeneratedMethodAccessor106.invoke(Unknown Source) at</span><br><span class="line">..........</span><br><span class="line">..........</span><br></pre></td></tr></table></figure>
+
+<h2 id="code-with-issues"><a href="#code-with-issues" class="headerlink" title="code with issues"></a>code with issues</h2><p>While this <code>SomeUtil</code> has been implemented like as blow:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SomeUtil</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, String&gt; entries = ImmutableMap.of();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> &#123;</span><br><span class="line">    loadEntries();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loadEntries</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      entries = DbAccess.loadEntries();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      log.error(<span class="string">"loadEntries error: &#123;&#125;"</span>, e.getMessage());</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getEntry</span><span class="params">(@NonNull String key)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// .....</span></span><br><span class="line">    entries.getOrDefault(key, <span class="string">""</span>);</span><br><span class="line">    <span class="comment">// .....</span></span><br><span class="line">    <span class="keyword">return</span> entry;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The util class <code>SomeUtil</code> is trying to load entries from database in static block.<br>The entries will be loaded only once when the first time  class <code>SomeUtil</code> is invoked.<br>If anything goes wrong with the databse access, <code>IllegalStateException</code> will be thrown from the method <code>loadEntries()</code>.</p>
+<h2 id="analysis"><a href="#analysis" class="headerlink" title="analysis"></a>analysis</h2><p>From the code above, it is obviously that the method <code>loadEntries()</code> is suspicious.<br>Since it could throw <code>IllegalStateException</code> when database access failed.</p>
+<p>So I made a little change to the method and tried to reproduce the exception:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loadEntries</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">//entries = DbAccess.loadEntries();</span></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"db access error"</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    log.error(<span class="string">"loadEntries error: &#123;&#125;"</span>, e.getMessage());</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Then I wrote a unit test as:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testStaticBlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  SomeUtil.getEntry(<span class="string">"some-key"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>After I ran the test, I found it did throw an error but not the same as <code>java.lang.NoClassDefFoundError</code> as reported:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.lang.ExceptionInInitializerError</span><br><span class="line">trueat sample.SomeTest.testStaticBlock(EventButTest.java:<span class="number">46</span>)</span><br><span class="line">trueat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">Caused by: java.lang.IllegalStateException: java.lang.RuntimeException: db access error</span><br></pre></td></tr></table></figure>
+
+<p>Why the error is <code>ExceptionInInitializerError</code> but not <code>NoClassDefFoundError</code>?<br>I thought it over and over.<br>When I tried to think <code>loadEntries()</code> might not be the root cause and tried some where elese,<br>I suddely realised this <code>NoClassDefFoundError</code> may have been thrown many times again and again.<br>Why don’t try to call <code>loadEntries()</code> multiple times?<br>Then I made below changes to the test code:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testStaticBlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">try</span>&#123;</span><br><span class="line">    SomeUtil.getEntry(<span class="string">"some-key"</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="comment">// do nothing</span></span><br><span class="line">  &#125;</span><br><span class="line">  SomeUtil.getEntry(<span class="string">"some-key"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>And ran the test then finally I can reproduce the same error as reported:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.lang.NoClassDefFoundError: Could not initialize <span class="class"><span class="keyword">class</span> <span class="title">test</span>.<span class="title">SomeUtil</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="root-cause"><a href="#root-cause" class="headerlink" title="root cause"></a>root cause</h2><p>So now we can confirm that method <code>loadEntries()</code> really is the root cause.<br>Since the first time when this method is called in static block, some how there was a database access error.<br>Due to this db error, the initialization of the <code>SomeUtil</code> class failed.<br>Since static block can only be ran once.<br>Then after this failure, when more upload request calls came, more <code>NoClassDefFoundError</code> would be produced.</p>
+<h2 id="solution"><a href="#solution" class="headerlink" title="solution"></a>solution</h2><p>We can either remove the static block, and change the load logic to when <code>getEntry()</code> is called in this method, check the size of <code>entries</code>. When size of <code>entries</code> is empty, call <code>loadEntries()</code> to update the state of <code>entries</code></p>
+<p>Or we can keep the static block, but in this static block we should make sure no <code>Throwable</code> will be thrown out.<br>And let <code>getEntry()</code> handle the state when <code>entries</code> is empty.</p>
+<h2 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li><p>Getting <code>NoClassDefFoundError</code> does NOT mean that you class is missing (in that case you’d get a <code>ClassNotFoundException</code>). <code>NoClassDefFoundError</code> means class loader ran into an error while reading the class definition when trying to read the class.</p>
+</li>
+<li><p>In this above case, you can reproduce the same error by invoke the issue method more than one time. (catch the first <code>ExceptionInInitializerError</code> to avoid code breaks at the first time).</p>
+</li>
+<li><p>Avoid throwing exception or error in static block when you try to use it.</p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2020/05/08/the-reason-of-NoClassDefFoundError-and-how-to-fix-it/" data-id="ck9xydlp70000aortoqxg1d8i" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-mqtt-and-mosquitto-learning-note" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/03/mqtt-and-mosquitto-learning-note/" class="article-date">
+  <time datetime="2020-05-03T09:22:00.000Z" itemprop="datePublished">2020-05-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/03/mqtt-and-mosquitto-learning-note/">mqtt and mosquitto learning note</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>mqtt是一个设计的非常好用的轻量级消息传输协议.<br>它广泛被应用在机器直接交互的物联网场景之中. 它的特点相信在网上很多文章中已经介绍的够多了.<br>我这里只说一些我感兴趣的:</p>
+<h2 id="QoS"><a href="#QoS" class="headerlink" title="QoS"></a>QoS</h2><ul>
+<li>QoS 0: At most once delivery</li>
+<li>QoS 1: At least once delivery</li>
+<li>QoS 2: Exactly once delivery</li>
+</ul>
+<h2 id="Session存储"><a href="#Session存储" class="headerlink" title="Session存储"></a>Session存储</h2><p>mqtt broker是支持持久化的. 消费端连接的时候可以提供一个id, 并保留连接的状态.<br>这样当消费端断开, 下次重连的时候, 服务器可以把之前没有被消费端消费的消息再次发送到消费端.<br>这个功能需要两个前提, 一个是消费连接的时候提供了id, 并且声明不会清除session, 另一个是发送到服务器的消息的QoS必须是1或者2.</p>
+<h2 id="Topic-Wildcards-主题通配符订阅和主题过滤"><a href="#Topic-Wildcards-主题通配符订阅和主题过滤" class="headerlink" title="Topic Wildcards 主题通配符订阅和主题过滤"></a>Topic Wildcards 主题通配符订阅和主题过滤</h2><p>这个功能允许消费端订阅多个主题并且过滤其中某些主题</p>
+<h2 id="基于websocket的网络传输"><a href="#基于websocket的网络传输" class="headerlink" title="基于websocket的网络传输"></a>基于websocket的网络传输</h2><p>这个对于web服务有多重要不言而喻了吧.</p>
+<h2 id="官方mqtt消息服务器-mosquitto"><a href="#官方mqtt消息服务器-mosquitto" class="headerlink" title="官方mqtt消息服务器 mosquitto"></a>官方mqtt消息服务器 mosquitto</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>mosquitto提供了debian的官方repo, centos系也可以从epel安装.<br>当然了, 如果你想docker运行, 也可以使用官方docker镜像<code>eclipse-mosquitto:1.6.9</code>, 它也是支持x86和arm等多种架构的.</p>
+<h3 id="开启websoket支持"><a href="#开启websoket支持" class="headerlink" title="开启websoket支持"></a>开启websoket支持</h3><p>目前mosquitto(1.6.9)这个broker是支持websocket协议的, 不过在默认的配置文件里面没有打开.<br>如果需要对websocket提供支持, 在mosquitto.conf文件中需要这样修改:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">port 1883</span><br><span class="line">listener 1884</span><br><span class="line">protocol websockets</span><br></pre></td></tr></table></figure>
+
+<p><code>port 1883</code>对应的是mqtt协议的端口.<br><code>listener 1884</code>对应的是websokets协议的端口</p>
+<h3 id="一些发送端和消费端命令"><a href="#一些发送端和消费端命令" class="headerlink" title="一些发送端和消费端命令"></a>一些发送端和消费端命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># 向localhost的默认端口发送消息</span></span><br><span class="line"><span class="comment"># q开关指定消息的QoS为2, 表示如果消息没有发送到消费端的话会保存在session里面, 等客户端连接的时候会尝试发送</span></span><br><span class="line">mosquitto_pub -h localhost -t topic01 -q 2 -m <span class="string">"hello world"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># c开关表示不清除session, 需要指定client id</span></span><br><span class="line"><span class="comment"># q开关指定消息的QoS为2, 表示如果消息没有发送到消费端的话会保存在session里面, 等客户端连接的时候会尝试发送</span></span><br><span class="line"><span class="comment"># v开关打印接收到的消息, 调试需要</span></span><br><span class="line">mosquitto_sub -h localhost -i client_id_01 -q 2 -c -v -t topic01</span><br></pre></td></tr></table></figure>
+
+<h2 id="窗口界面的mqtt客户端工具-mqttx"><a href="#窗口界面的mqtt客户端工具-mqttx" class="headerlink" title="窗口界面的mqtt客户端工具 mqttx"></a>窗口界面的mqtt客户端工具 mqttx</h2><p>在<a href="https://mqttx.app/" target="_blank" rel="noopener">mqttx.app</a>下载</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2020/05/03/mqtt-and-mosquitto-learning-note/" data-id="ck9qwh9s8000g2crtgw4uhwui" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mqtt/" rel="tag">mqtt</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-install-docker-compose-on-ReapberryPi" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/03/install-docker-compose-on-ReapberryPi/" class="article-date">
+  <time datetime="2020-05-03T09:13:37.000Z" itemprop="datePublished">2020-05-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/03/install-docker-compose-on-ReapberryPi/">install docker-compose on ReapberryPi</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Arm Arch based docker-compose is not officially provided.<br>To install it, we should use:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3 python3-dev python3-pip python3-setuptools python3-wheel</span><br><span class="line">sudo apt install libffi-dev</span><br><span class="line">pip3 install --user docker-compose</span><br></pre></td></tr></table></figure>
+
+<p>Do not use <code>pip</code>, because some dependencies may not support python2.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2020/05/03/install-docker-compose-on-ReapberryPi/" data-id="ck9qwh9s0000b2crt1c2lz335" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-firewalld-command-cheet-sheet" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/03/firewalld-command-cheet-sheet/" class="article-date">
+  <time datetime="2020-05-03T07:50:42.000Z" itemprop="datePublished">2020-05-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/03/firewalld-command-cheet-sheet/">firewalld command cheet sheet</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>启动一个服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl --<span class="built_in">type</span>=service</span><br><span class="line">systemctl start firewalld.service</span><br></pre></td></tr></table></figure>
+
+<p>关闭一个服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld.service</span><br></pre></td></tr></table></figure>
+
+<p>重启一个服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart firewalld.service</span><br></pre></td></tr></table></figure>
+
+<p>显示状态： </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --state</span><br></pre></td></tr></table></figure>
+
+<p>zone</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --get-default-zone</span><br><span class="line">firewall-cmd --get-active-zones</span><br></pre></td></tr></table></figure>
+
+<p>查看所有打开的端口： </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --zone=public --list-ports</span><br><span class="line">firewall-cmd --zone=FedoraServer --list-ports</span><br></pre></td></tr></table></figure>
+
+<p>更新防火墙规则： </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+
+<p>添加一个端口：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --zone=public --add-port=80/tcp --permanent </span><br><span class="line">firewall-cmd --zone=FedoraServer --add-port=80/tcp --permanent </span><br><span class="line">firewall-cmd --zone=FedoraServer --add-port=5060-5061/udp</span><br></pre></td></tr></table></figure>
+
+<p>删除一个端口：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --zone=public --remove-port=80/tcp --permanent </span><br><span class="line">firewall-cmd --zone=FedoraServer --remove-port=80/tcp --permanent </span><br><span class="line">firewall-cmd --zone=FedoraServer --remove-port=80/tcp --permanent</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2020/05/03/firewalld-command-cheet-sheet/" data-id="ck9qwh9rw00072crtv3gobc8d" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bash/" rel="tag">bash</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-bash-command-cheet-sheet" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/03/bash-command-cheet-sheet/" class="article-date">
+  <time datetime="2020-05-03T03:53:32.000Z" itemprop="datePublished">2020-05-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/03/bash-command-cheet-sheet/">bash command cheet sheet</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>My WizNote service has been expired.<br>I did not pay to renew the service.<br>It is good and convenient though.<br>So I decided to move all my previous learning notes to here.<br>Most of them are not oringinally created by me.<br>I would try to include the source.<br>Please remind me to delete them if you are the author and you feel it is a violation of your IP.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># check alias</span></span><br><span class="line"><span class="built_in">type</span> -a ll</span><br><span class="line"></span><br><span class="line"><span class="built_in">alias</span> sudo=<span class="string">'sudo '</span></span><br><span class="line"><span class="comment"># greps</span></span><br><span class="line"><span class="built_in">alias</span> grep=<span class="string">'grep --color'</span></span><br><span class="line"><span class="built_in">alias</span> egrep=<span class="string">'egrep --color'</span></span><br><span class="line"><span class="built_in">alias</span> fgrep=<span class="string">'fgrep --color'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># utils</span></span><br><span class="line"><span class="built_in">alias</span> sudo=<span class="string">"sudo "</span></span><br><span class="line"><span class="built_in">alias</span> ll=<span class="string">"ls -lthF"</span></span><br><span class="line"><span class="built_in">alias</span> la=<span class="string">"ls -lthFA"</span></span><br><span class="line"><span class="built_in">alias</span> md=<span class="string">"mkdir "</span></span><br><span class="line"><span class="built_in">alias</span> rm=<span class="string">"rm -i"</span></span><br><span class="line"><span class="built_in">alias</span> mdate=<span class="string">"date \"+%Y-%m-%d %H:%M:%S\""</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># fedora</span></span><br><span class="line"><span class="built_in">alias</span> vim=<span class="string">"gvim -v"</span></span><br><span class="line"><span class="built_in">alias</span> xcp=<span class="string">"xclip -selection clipboard"</span></span><br><span class="line"><span class="built_in">alias</span> xcv=<span class="string">"xclip -o"</span></span><br><span class="line"><span class="built_in">alias</span> rmrtlan=<span class="string">"sudo route del default enp0s31f6"</span></span><br><span class="line"><span class="built_in">alias</span> scrnoff=<span class="string">"xset dpms force off "</span></span><br><span class="line"><span class="built_in">alias</span> printpath=<span class="string">"echo <span class="variable">$PATH</span> | tr : \\\\n"</span></span><br><span class="line"><span class="built_in">alias</span> lstcp=<span class="string">"lsof -i -n -P | grep TCP"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># list top 5 files/ folders</span></span><br><span class="line"></span><br><span class="line">du -h | sort -rh | head -n 5</span><br><span class="line"><span class="comment"># list only directories</span></span><br><span class="line">ls -l | grep ^d</span><br><span class="line"></span><br><span class="line"><span class="comment"># tree list</span></span><br><span class="line">find . -<span class="built_in">type</span> d |sed <span class="string">'s:[^-][^/]*/:--:g; s:^-: |:'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">find / -name file1  <span class="comment"># 从 '/' 开始进入根文件系统搜索文件和目录</span></span><br><span class="line">find / -user user1  <span class="comment"># 搜索属于用户 'user1' 的文件和目录</span></span><br><span class="line">find /home/user1 -name \*.bin    <span class="comment"># 在目录 '/ home/user1' 中搜索带有'.bin' 结尾的文件</span></span><br><span class="line">find /usr/bin -<span class="built_in">type</span> f -atime +100   <span class="comment"># 搜索在过去100天内未被使用过的执行文件</span></span><br><span class="line">find /usr/bin -<span class="built_in">type</span> f -mtime -10   <span class="comment">#    搜索在10天内被创建或者修改过的文件</span></span><br><span class="line">find / -name *.rpm -<span class="built_in">exec</span> chmod 755 <span class="string">'&#123;&#125;'</span> \;  <span class="comment"># 搜索以 '.rpm' 结尾的文件并定义其权限</span></span><br><span class="line">find / -xdev -name \*.rpm   <span class="comment"># 搜索以 '.rpm' 结尾的文件，忽略光驱、捷盘等可移动设备</span></span><br><span class="line">find ./code -name <span class="string">"*.c"</span> |xargs grep -<span class="keyword">in</span> <span class="string">"hello"</span> <span class="comment"># 在~/code目录搜索并显示文件名后缀为.c并且包含字符串hello的文件和行数</span></span><br><span class="line">find . -<span class="built_in">type</span> f -<span class="built_in">exec</span> chmod 644 &#123;&#125; \;  <span class="comment">#文件加644</span></span><br><span class="line">find . -<span class="built_in">type</span> d -<span class="built_in">exec</span> chmod 755 &#123;&#125; \; ＃目录加755</span><br><span class="line">find ./ -<span class="built_in">type</span> f | xargs sudo chmod 644</span><br><span class="line"></span><br><span class="line"><span class="comment"># display thread</span></span><br><span class="line"></span><br><span class="line">ps -efL</span><br><span class="line"><span class="comment"># display top 5 processes which has taken most memory and cpu resources</span></span><br><span class="line">ps -ef --sort -pmem,+pcpu | head -n 6</span><br><span class="line"><span class="comment"># change output format</span></span><br><span class="line">ps -eo pic,user,args</span><br><span class="line"><span class="comment"># monitor threads of process with name contains java</span></span><br><span class="line">pidstat -C java -t</span><br><span class="line"></span><br><span class="line">sudo localectl <span class="built_in">set</span>-locale.utf8</span><br><span class="line"></span><br><span class="line">wget -e use_proxy=on --no-check-certificate https://nodejs.org/dist/v5.1.0/node-v5.1.0-x64.msi</span><br><span class="line">wget -t0 -c --no-check-certificate http://mirror.bit.edu.cn/apache/kafka/0.10.0.0/kafka_2.11-0.10.0.0.tgz -O ~/Downloads/kafka.tgz</span><br><span class="line"></span><br><span class="line"><span class="comment"># yum install and yum local install can both be replaced with:</span></span><br><span class="line">sudo dnf install &lt;anypackage&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># list services</span></span><br><span class="line"></span><br><span class="line">systemctl list-unit-files | grep smb</span><br><span class="line"><span class="comment"># config service to be auto-start</span></span><br><span class="line">systemctl <span class="built_in">enable</span> smb.service</span><br><span class="line"><span class="comment"># start service</span></span><br><span class="line">systemctl start service</span><br><span class="line"><span class="comment"># stop servie</span></span><br><span class="line">systemctl stop service</span><br><span class="line"><span class="comment"># disable service</span></span><br><span class="line">systemctl <span class="built_in">disable</span> service</span><br><span class="line"></span><br><span class="line"><span class="comment"># copy .ttf font file to .fonts</span></span><br><span class="line">$ <span class="built_in">fc</span>-cache -vf</span><br><span class="line"></span><br><span class="line">synclient TouchpadOff=1</span><br><span class="line"></span><br><span class="line"><span class="comment"># download a file, rename as amm, grant x permission, and run it.</span></span><br><span class="line">$ curl -L -o amm https://git.io/vro0u &amp;&amp; chmod +x amm &amp;&amp; ./amm</span><br><span class="line"></span><br><span class="line">$ watch --interval 1 date</span><br><span class="line"><span class="comment"># watch file size</span></span><br><span class="line">$ watch -n60 du -h /var/<span class="built_in">log</span>/messages</span><br><span class="line"></span><br><span class="line">cut -d\    -f 1 ~/.bash_history | sort | uniq -c | sort -rn | head -n 10 | sed <span class="string">'s/.*/    &amp;/g'</span></span><br><span class="line">sudo -u apache find . -not -readable</span><br><span class="line"></span><br><span class="line"><span class="comment"># open connections</span></span><br><span class="line">lsof -i | grep -E <span class="string">"(LISTEN|ESTABLISHED)"</span></span><br><span class="line"><span class="comment"># Displaying a Active Network Connections</span></span><br><span class="line">lsof -i|grep -E <span class="string">"(LISTEN|ESTABLISHED)"</span> |awk <span class="string">'&#123;print $1, $8, $9&#125;'</span></span><br><span class="line"><span class="built_in">alias</span> lsac=<span class="string">"lsof -i | grep -E '(LISTEN|ESTABLISHED)'"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Hello, world"</span> | xclip</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Hello, world"</span> | xclip -selection clipboard</span><br><span class="line">xclip -sel clip &lt; file</span><br><span class="line">cat README.TXT | xsel</span><br><span class="line">cat README.TXT | xsel -b <span class="comment"># 如有问题可以试试-b选项</span></span><br><span class="line"><span class="comment"># 将readme.txt的文本放入剪贴板</span></span><br><span class="line">xsel &lt; README.TXT</span><br><span class="line"><span class="comment"># 清空剪贴板</span></span><br><span class="line">xsel -c</span><br><span class="line"></span><br><span class="line">sudo mkntfs -f -L udisk /dev/sdb1 -F</span><br><span class="line"></span><br><span class="line">sudo dnf install fuse-exfat exfat-utils</span><br><span class="line"></span><br><span class="line">docker images | tail -n +5 | head -n -1 | awk <span class="string">'&#123;print $3&#125;'</span> | xargs docker rmi</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2020/05/03/bash-command-cheet-sheet/" data-id="ck9qwh9ra00002crtry99ahe8" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bash/" rel="tag">bash</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-different-ways-to-get-a-substring-in-bash" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/04/30/different-ways-to-get-a-substring-in-bash/" class="article-date">
+  <time datetime="2020-04-30T01:05:47.000Z" itemprop="datePublished">2020-04-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/04/30/different-ways-to-get-a-substring-in-bash/">different ways to get a substring in bash</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Linux 的字符串截取很有用,有八种方法。</p>
+<p>假设有变量<code>var=http://www.aaa.com/123.htm</code></p>
+<h2 id="号截取，删除左边字符，保留右边字符"><a href="#号截取，删除左边字符，保留右边字符" class="headerlink" title="# 号截取，删除左边字符，保留右边字符"></a># 号截取，删除左边字符，保留右边字符</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var#*//&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中 var 是变量名，<code>#</code> 号是运算符，<code>*//</code> 表示从左边开始删除第一个 <code>//</code> 号及左边的所有字符<br>即删除 <code>http://</code><br>结果是<code>www.aaa.com/123.htm</code></p>
+<h2 id="号截取，删除左边字符，保留右边字符-1"><a href="#号截取，删除左边字符，保留右边字符-1" class="headerlink" title="## 号截取，删除左边字符，保留右边字符"></a>## 号截取，删除左边字符，保留右边字符</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var##*/&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>##*/</code> 表示从左边开始删除最后（最右边）一个 <code>/</code> 号及左边的所有字符<br>即删除 <code>http://www.aaa.com/</code><br>结果是<code>123.htm</code></p>
+<h2 id="号截取，删除右边字符，保留左边字符"><a href="#号截取，删除右边字符，保留左边字符" class="headerlink" title="%号截取，删除右边字符，保留左边字符"></a>%号截取，删除右边字符，保留左边字符</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var%/*&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>%/*</code> 表示从右边开始，删除第一个 <code>/</code> 号及右边的字符<br>结果是<code>http://www.aaa.com</code></p>
+<h2 id="号截取，删除右边字符，保留左边字符-1"><a href="#号截取，删除右边字符，保留左边字符-1" class="headerlink" title="%% 号截取，删除右边字符，保留左边字符"></a>%% 号截取，删除右边字符，保留左边字符</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var%%/*&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>%%/*</code> 表示从右边开始，删除最后（最左边）一个 <code>/</code> 号及右边的字符<br>结果是<code>http:</code></p>
+<h2 id="从左边第几个字符开始，一直到结束"><a href="#从左边第几个字符开始，一直到结束" class="headerlink" title="从左边第几个字符开始，一直到结束"></a>从左边第几个字符开始，一直到结束</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var:7&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中的 7 表示左边第8个字符开始，一直到结束。<br>结果是<code>www.aaa.com/123.htm</code></p>
+<h2 id="从右边第几个字符开始，及字符的个数"><a href="#从右边第几个字符开始，及字符的个数" class="headerlink" title="从右边第几个字符开始，及字符的个数"></a>从右边第几个字符开始，及字符的个数</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var:0-7:3&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中的 0-7 表示右边算起第七个字符开始，3 表示字符的个数。<br>结果是<code>123</code></p>
+<h2 id="从右边第几个字符开始，一直到结束"><a href="#从右边第几个字符开始，一直到结束" class="headerlink" title="从右边第几个字符开始，一直到结束"></a>从右边第几个字符开始，一直到结束</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var:0-7&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>表示从右边第七个字符开始，一直到结束。<br>结果是<code>123.htm</code></p>
+<p>注：（左边的第一个字符是用 0 表示，右边的第一个字符用 0-1 表示）</p>
+<h2 id="使用cut"><a href="#使用cut" class="headerlink" title="使用cut"></a>使用<code>cut</code></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$var</span> | cut -nb 1-7 <span class="comment"># http://</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$var</span> | cut -nc -7  <span class="comment"># http://</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$var</span> | cut -nc 8-  <span class="comment"># www.aaa.com</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="references"><a href="#references" class="headerlink" title="references"></a>references</h2><p><a href="https://www.jb51.net/article/56563.htm" target="_blank" rel="noopener">Shell脚本8种字符串截取方法总结</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2020/04/30/different-ways-to-get-a-substring-in-bash/" data-id="ck9qwh9rs00042crtw9h0ymjb" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bash/" rel="tag">bash</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-fix-self-signed-certificate-in-certificate-chain-error-while-executing-npm-install" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/12/fix-self-signed-certificate-in-certificate-chain-error-while-executing-npm-install/" class="article-date">
+  <time datetime="2019-12-12T05:20:30.000Z" itemprop="datePublished">2019-12-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/12/fix-self-signed-certificate-in-certificate-chain-error-while-executing-npm-install/">fix self signed certificate in certificate chain error while executing npm install</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="the-problem"><a href="#the-problem" class="headerlink" title="the problem"></a>the problem</h2><p>The error occured while executing “npm clean-install”:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">gyp ERR! configure error</span><br><span class="line">gyp ERR! stack Error: self signed certificate in certificate chain</span><br><span class="line">gyp ERR! stack     at TLSSocket.onConnectSecure (_tls_wrap.js:1349:34)</span><br><span class="line">gyp ERR! stack     at TLSSocket.emit (events.js:219:5)</span><br><span class="line">gyp ERR! stack     at TLSSocket._finishInit (_tls_wrap.js:822:8)</span><br><span class="line">gyp ERR! stack     at TLSWrap.ssl.onhandshakedone (_tls_wrap.js:618:12)</span><br></pre></td></tr></table></figure>
+
+<h2 id="the-solution"><a href="#the-solution" class="headerlink" title="the solution"></a>the solution</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm config <span class="built_in">set</span> strict-ssl <span class="literal">false</span></span><br><span class="line"><span class="built_in">export</span> NODE_TLS_REJECT_UNAUTHORIZED=0</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2019/12/12/fix-self-signed-certificate-in-certificate-chain-error-while-executing-npm-install/" data-id="ck9qwh9rx00082crtgcuuwdrs" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/npm/" rel="tag">npm</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-compilation-error-when-using-Comparator-comparing" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/10/compilation-error-when-using-Comparator-comparing/" class="article-date">
+  <time datetime="2019-12-10T10:13:12.000Z" itemprop="datePublished">2019-12-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/10/compilation-error-when-using-Comparator-comparing/">compilation error when using Comparator.comparing()</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="the-problem"><a href="#the-problem" class="headerlink" title="the problem"></a>the problem</h2><p>First, lets take a look at the following code sample:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Collections.sort(playlist, Comparator.comparing(s -&gt; s.getTitle())</span><br><span class="line">              .thenComparing(p1 -&gt; p1.getDuration())</span><br><span class="line">              .thenComparing(p1 -&gt; p1.getArtist())</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>What we are trying to do is simple: sort the <code>playlist</code> order by three different properties.<br>Can this code snippet pass the compilation check?<br>The answer is: No, there would be some compilation error.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Error:(<span class="number">43</span>, <span class="number">59</span>) java: cannot find symbol</span><br><span class="line">  symbol:   <span class="function">method <span class="title">getTitle</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  location: variable s of type java.lang.Object</span></span><br></pre></td></tr></table></figure>
+
+<p>But why?</p>
+<p>The reason for this compilation error is that the type inference for Java lanaguage is weak in this case.<br>It is expected that JVM knows the type of the elements in <code>playlist</code> when it is reading the first lambda <code>s-&gt;s.getTitle()</code>.<br>But actually, JVM is not able to figure it out.</p>
+<h2 id="the-solutions"><a href="#the-solutions" class="headerlink" title="the solutions"></a>the solutions</h2><p>There are three approaches to solve this problem.</p>
+<h3 id="use-static-lambda-expression"><a href="#use-static-lambda-expression" class="headerlink" title="use static lambda expression"></a>use static lambda expression</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Collections.sort(playlist, Comparator.comparing(Song::getTitle)</span><br><span class="line">              .thenComparing(Song::getDuration)</span><br><span class="line">              .thenComparing(Song::getArtist)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h3 id="use-explicitly-defined-lambda-with-a-temorary-variable"><a href="#use-explicitly-defined-lambda-with-a-temorary-variable" class="headerlink" title="use explicitly defined lambda with a temorary variable"></a>use explicitly defined lambda with a temorary variable</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Comparator&lt;Song&gt; byName = (s1, s2) -&gt; s1.getArtist().compareTo(s2.getArtist());</span><br><span class="line">Comparator&lt;Song&gt; byDuration = (s1, s2) -&gt; Integer.compare(s1.getDuration(), s2.getDuration());</span><br><span class="line">Collections.sort(playlist, byName.thenComparing(byDuration));</span><br></pre></td></tr></table></figure>
+
+<h3 id="add-explicity-type-parameter-before-the-Comparator-comparing-is-called"><a href="#add-explicity-type-parameter-before-the-Comparator-comparing-is-called" class="headerlink" title="add explicity type parameter before the Comparator.comparing() is called"></a>add explicity type parameter before the Comparator.comparing() is called</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Collections.sort(playlist, Comparator.&lt;Song, String&gt;comparing((s) -&gt; s.getTitle())</span><br><span class="line">              .thenComparing(p1 -&gt; p1.getDuration())</span><br><span class="line">              .thenComparing(p1 -&gt; p1.getArtist())</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h2 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h2><p><a href="http://stackoverflow.com/questions/24436871/very-confused-by-java-8-comparator-type-inference" target="_blank" rel="noopener">Very confused by Java 8 Comparator type inference</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2019/12/10/compilation-error-when-using-Comparator-comparing/" data-id="ck9qwh9rp00032crtf0o9go72" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-find-those-plugins-which-are-making-vim-slow" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/10/find-those-plugins-which-are-making-vim-slow/" class="article-date">
+  <time datetime="2019-12-10T09:53:36.000Z" itemprop="datePublished">2019-12-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/10/find-those-plugins-which-are-making-vim-slow/">find those plugins which are making vim slow</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="option-1-use-hyiltiz-vim-plugins-profile"><a href="#option-1-use-hyiltiz-vim-plugins-profile" class="headerlink" title="option 1: use hyiltiz/vim-plugins-profile"></a>option 1: use <strong>hyiltiz/vim-plugins-profile</strong></h2><p><strong>hyiltiz/vim-plugins-profile</strong> is a plugin which can find the top 10 plugins that slows down vim startup</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Generating vim startup profile...</span><br><span class="line">Parsing vim startup profile...</span><br><span class="line">Crunching data and generating profile plot ...</span><br><span class="line"></span><br><span class="line">Your plugins startup profile graph is saved</span><br><span class="line">as `profile.png` under current directory.</span><br><span class="line"></span><br><span class="line">==========================================</span><br><span class="line">Top 10 Plugins That Slows Down Vim Startup</span><br><span class="line">==========================================</span><br><span class="line">   1	105.13	"vim-colorschemes"</span><br><span class="line">   2	42.661	"vim-easytags"</span><br><span class="line">   3	31.173	"vim-vendetta"</span><br><span class="line">   4	22.02	"syntastic"</span><br><span class="line">   5	13.362	"vim-online-thesaurus"</span><br><span class="line">   6	7.888	"vim-easymotion"</span><br><span class="line">   7	6.931	"vim-airline"</span><br><span class="line">   8	6.608	"YankRing.vim"</span><br><span class="line">   9	5.266	"nerdcommenter"</span><br><span class="line">  10	5.017	"delimitMate"</span><br><span class="line">==========================================</span><br><span class="line">Done!</span><br></pre></td></tr></table></figure>
+
+<h2 id="option-2-use-built-in-profiling-support"><a href="#option-2-use-built-in-profiling-support" class="headerlink" title="option 2: use built-in profiling support"></a>option 2: use built-in profiling support</h2><p>After launching vim do:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">:profile start profile.log</span><br><span class="line">:profile func *</span><br><span class="line">:profile file *</span><br><span class="line">&quot; do some operations that you feel slow in vim</span><br><span class="line">:profile pause</span><br></pre></td></tr></table></figure>
+
+<p>The <code>profile.log</code> is created in your vim sessions’s current directory.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2019/12/10/find-those-plugins-which-are-making-vim-slow/" data-id="ck9qwh9ru00052crt7xik4i40" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vim/" rel="tag">vim</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-install-language-support-for-centos-8" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/16/install-language-support-for-centos-8/" class="article-date">
+  <time datetime="2019-10-16T03:48:25.000Z" itemprop="datePublished">2019-10-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/10/16/install-language-support-for-centos-8/">install language support for centos 8</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="如何在centos-8-stream上通过命令正确的安装中文语言支持"><a href="#如何在centos-8-stream上通过命令正确的安装中文语言支持" class="headerlink" title="如何在centos 8 stream上通过命令正确的安装中文语言支持"></a>如何在centos 8 stream上通过命令正确的安装中文语言支持</h2><p>Recently I have been using centos 8 stream on vagrant.<br>I used <code>zh_CN.UTF-8</code> on my host env as this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LC_CTYPE&#x3D;zh_CN.UTF-8</span><br><span class="line">LC_ALL&#x3D;zh_CN.UTF-8</span><br></pre></td></tr></table></figure>
+
+<p>But after SSH login to centos, such error message dispayed before the prompt line:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-bash: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br><span class="line">&#x2F;bin&#x2F;sh: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br><span class="line">&#x2F;bin&#x2F;sh: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br><span class="line">&#x2F;bin&#x2F;sh: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br><span class="line">-bash: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br></pre></td></tr></table></figure>
+
+<p>Usually this is not such a big issue, but it is really annoying.<br>It means currently the system dose not support chinese characters in console output. So there could be junk code dispayed when it tries to dispay chinese characters.</p>
+<p>By solving this problem, I need to install language support for centos 8 stream.</p>
+<p>I have searched almost all the internet, but still not found any guides which can tell me what the right package can be used to add chinese language support.</p>
+<p>The similar pages are all for centos 7 and previous versions, and these packages are no longer existing.</p>
+<p>At the end, I found this one on redhat official document website:<br><a target="_blank" rel="noopener" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_basic_system_settings/installing-using-langpacks">INSTALLING AND USING LANGPACKS</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">7.2.2. Installing language support</span><br><span class="line">To add new a language support, run the following command as the root user:</span><br><span class="line"></span><br><span class="line">~]# yum install langpacks-&lt;locale_code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>On centos 8, <code>yum</code> is not suggested so we can use <code>dnf</code>.<br>So the right way to install chinese language support is:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">sudo dnf search langpacks*</span><br><span class="line">&#x3D;&#x3D;&#x3D; Name Matched: langpacks* &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">langpacks-si.noarch : Sinhala langpacks meta-package</span><br><span class="line">langpacks-sk.noarch : Slovak langpacks meta-package</span><br><span class="line">langpacks-sl.noarch : Slovenian langpacks meta-package</span><br><span class="line">langpacks-sq.noarch : Albanian langpacks meta-package</span><br><span class="line">langpacks-sr.noarch : Serbian langpacks meta-package</span><br><span class="line">langpacks-ss.noarch : Swati langpacks meta-package</span><br><span class="line">langpacks-sv.noarch : Swedish langpacks meta-package</span><br><span class="line">langpacks-ta.noarch : Tamil langpacks meta-package</span><br><span class="line">langpacks-te.noarch : Telugu langpacks meta-package</span><br><span class="line">langpacks-th.noarch : Thai langpacks meta-package</span><br><span class="line">langpacks-tn.noarch : Tswana langpacks meta-package</span><br><span class="line">langpacks-tr.noarch : Turkish langpacks meta-package</span><br><span class="line">langpacks-ts.noarch : Tsonga langpacks meta-package</span><br><span class="line">langpacks-uk.noarch : Ukrainian langpacks meta-package</span><br><span class="line">langpacks-ur.noarch : Urdu langpacks meta-package</span><br><span class="line">langpacks-ve.noarch : Venda langpacks meta-package</span><br><span class="line">langpacks-vi.noarch : Vietnamese langpacks meta-package</span><br><span class="line">langpacks-xh.noarch : Xhosa langpacks meta-package</span><br><span class="line">langpacks-zu.noarch : Zulu langpacks meta-package</span><br><span class="line">langpacks-ast.noarch : Asturian langpacks meta-package</span><br><span class="line">langpacks-mai.noarch : Maithili langpacks meta-package</span><br><span class="line">langpacks-nso.noarch : Northern Sotho langpacks meta-package</span><br><span class="line">langpacks-zh_CN.noarch : Simplified Chinese langpacks meta-package</span><br><span class="line">langpacks-en_GB.noarch : English (United Kingdom) langpacks meta-package</span><br><span class="line">langpacks-pt_BR.noarch : Portuguese (Brazil) langpacks meta-package</span><br><span class="line">langpacks-zh_CN.noarch : Simplified Chinese langpacks meta-package</span><br><span class="line">langpacks-zh_TW.noarch : Traditional Chinese langpacks meta-package</span><br></pre></td></tr></table></figure>
+
+<p>It shows a list of provided language packs for you to install.<br>If you choose <code>langpacks-zh_CN</code> to install, then just use:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo dnf install langpacks-zh_CN</span><br><span class="line">sudo dnf install glibc-langpack-zh</span><br></pre></td></tr></table></figure>
+
+<p>Then chinese language support is installed.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2019/10/16/install-language-support-for-centos-8/" data-id="ck9qwh9s2000d2crtl68h9bx2" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/centos8/" rel="tag">centos8</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">下一页 &amp;raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/05/08/the-reason-of-NoClassDefFoundError-and-how-to-fix-it/">the reason of NoClassDefFoundError and how to fix it</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/03/mqtt-and-mosquitto-learning-note/">mqtt and mosquitto learning note</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/03/install-docker-compose-on-ReapberryPi/">install docker-compose on ReapberryPi</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/03/firewalld-command-cheet-sheet/">firewalld command cheet sheet</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/03/bash-command-cheet-sheet/">bash command cheet sheet</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash/" rel="tag">bash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos8/" rel="tag">centos8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mqtt/" rel="tag">mqtt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/" rel="tag">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/" rel="tag">vim</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/bash/" style="font-size: 16.67px;">bash</a> <a href="/tags/centos8/" style="font-size: 13.33px;">centos8</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/mqtt/" style="font-size: 10px;">mqtt</a> <a href="/tags/npm/" style="font-size: 10px;">npm</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Chen Yinghua<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

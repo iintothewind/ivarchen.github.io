@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>the reason of NoClassDefFoundError and how to fix it | iIntothewind</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="problemRecently some team members reported that some instance of our application occsionally failed to serve an upload request becasue it constantly threw the same error: 12345st&#x3D;java.lang.NoClassDefF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="the reason of NoClassDefFoundError and how to fix it">
+<meta property="og:url" content="https://iintothewind.github.io/2020/05/08/the-reason-of-NoClassDefFoundError-and-how-to-fix-it/index.html">
+<meta property="og:site_name" content="iIntothewind">
+<meta property="og:description" content="problemRecently some team members reported that some instance of our application occsionally failed to serve an upload request becasue it constantly threw the same error: 12345st&#x3D;java.lang.NoClassDefF">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-08T07:48:27.000Z">
+<meta property="article:modified_time" content="2020-05-08T09:13:44.922Z">
+<meta property="article:author" content="Chen Yinghua">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">iIntothewind</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://iintothewind.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-the-reason-of-NoClassDefFoundError-and-how-to-fix-it" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/08/the-reason-of-NoClassDefFoundError-and-how-to-fix-it/" class="article-date">
+  <time datetime="2020-05-08T07:48:27.000Z" itemprop="datePublished">2020-05-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      the reason of NoClassDefFoundError and how to fix it
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="problem"><a href="#problem" class="headerlink" title="problem"></a>problem</h2><p>Recently some team members reported that some instance of our application occsionally failed to serve an upload request becasue it constantly threw the same error:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">st=java.lang.NoClassDefFoundError: Could not initialize <span class="class"><span class="keyword">class</span> <span class="title">xxx</span>.<span class="title">SomeUtil</span></span></span><br><span class="line">at xxxImpl.upload(xxx.Java:xxx)</span><br><span class="line">at sun.reflect.GeneratedMethodAccessor106.invoke(Unknown Source) at</span><br><span class="line">..........</span><br><span class="line">..........</span><br></pre></td></tr></table></figure>
+
+<h2 id="code-with-issues"><a href="#code-with-issues" class="headerlink" title="code with issues"></a>code with issues</h2><p>While this <code>SomeUtil</code> has been implemented like as blow:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SomeUtil</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, String&gt; entries = ImmutableMap.of();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> &#123;</span><br><span class="line">    loadEntries();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loadEntries</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      entries = DbAccess.loadEntries();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      log.error(<span class="string">"loadEntries error: &#123;&#125;"</span>, e.getMessage());</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getEntry</span><span class="params">(@NonNull String key)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// .....</span></span><br><span class="line">    entries.getOrDefault(key, <span class="string">""</span>);</span><br><span class="line">    <span class="comment">// .....</span></span><br><span class="line">    <span class="keyword">return</span> entry;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The util class <code>SomeUtil</code> is trying to load entries from database in static block.<br>The entries will be loaded only once when the first time  class <code>SomeUtil</code> is invoked.<br>If anything goes wrong with the databse access, <code>IllegalStateException</code> will be thrown from the method <code>loadEntries()</code>.</p>
+<h2 id="analysis"><a href="#analysis" class="headerlink" title="analysis"></a>analysis</h2><p>From the code above, it is obviously that the method <code>loadEntries()</code> is suspicious.<br>Since it could throw <code>IllegalStateException</code> when database access failed.</p>
+<p>So I made a little change to the method and tried to reproduce the exception:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loadEntries</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">//entries = DbAccess.loadEntries();</span></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"db access error"</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    log.error(<span class="string">"loadEntries error: &#123;&#125;"</span>, e.getMessage());</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Then I wrote a unit test as:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testStaticBlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  SomeUtil.getEntry(<span class="string">"some-key"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>After I ran the test, I found it did throw an error but not the same as <code>java.lang.NoClassDefFoundError</code> as reported:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.lang.ExceptionInInitializerError</span><br><span class="line">trueat sample.SomeTest.testStaticBlock(EventButTest.java:<span class="number">46</span>)</span><br><span class="line">trueat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">Caused by: java.lang.IllegalStateException: java.lang.RuntimeException: db access error</span><br></pre></td></tr></table></figure>
+
+<p>Why the error is <code>ExceptionInInitializerError</code> but not <code>NoClassDefFoundError</code>?<br>I thought it over and over.<br>When I tried to think <code>loadEntries()</code> might not be the root cause and tried some where elese,<br>I suddely realised this <code>NoClassDefFoundError</code> may have been thrown many times again and again.<br>Why don’t try to call <code>loadEntries()</code> multiple times?<br>Then I made below changes to the test code:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testStaticBlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">try</span>&#123;</span><br><span class="line">    SomeUtil.getEntry(<span class="string">"some-key"</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="comment">// do nothing</span></span><br><span class="line">  &#125;</span><br><span class="line">  SomeUtil.getEntry(<span class="string">"some-key"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>And ran the test then finally I can reproduce the same error as reported:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.lang.NoClassDefFoundError: Could not initialize <span class="class"><span class="keyword">class</span> <span class="title">test</span>.<span class="title">SomeUtil</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="root-cause"><a href="#root-cause" class="headerlink" title="root cause"></a>root cause</h2><p>So now we can confirm that method <code>loadEntries()</code> really is the root cause.<br>Since the first time when this method is called in static block, some how there was a database access error.<br>Due to this db error, the initialization of the <code>SomeUtil</code> class failed.<br>Since static block can only be ran once.<br>Then after this failure, when more upload request calls came, more <code>NoClassDefFoundError</code> would be produced.</p>
+<h2 id="solution"><a href="#solution" class="headerlink" title="solution"></a>solution</h2><p>We can either remove the static block, and change the load logic to when <code>getEntry()</code> is called in this method, check the size of <code>entries</code>. When size of <code>entries</code> is empty, call <code>loadEntries()</code> to update the state of <code>entries</code></p>
+<p>Or we can keep the static block, but in this static block we should make sure no <code>Throwable</code> will be thrown out.<br>And let <code>getEntry()</code> handle the state when <code>entries</code> is empty.</p>
+<h2 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li><p>Getting <code>NoClassDefFoundError</code> does NOT mean that you class is missing (in that case you’d get a <code>ClassNotFoundException</code>). <code>NoClassDefFoundError</code> means class loader ran into an error while reading the class definition when trying to read the class.</p>
+</li>
+<li><p>In this above case, you can reproduce the same error by invoke the issue method more than one time. (catch the first <code>ExceptionInInitializerError</code> to avoid code breaks at the first time).</p>
+</li>
+<li><p>Avoid throwing exception or error in static block when you try to use it.</p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://iintothewind.github.io/2020/05/08/the-reason-of-NoClassDefFoundError-and-how-to-fix-it/" data-id="ck9xydlp70000aortoqxg1d8i" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/05/03/mqtt-and-mosquitto-learning-note/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">mqtt and mosquitto learning note</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/05/08/the-reason-of-NoClassDefFoundError-and-how-to-fix-it/">the reason of NoClassDefFoundError and how to fix it</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/03/mqtt-and-mosquitto-learning-note/">mqtt and mosquitto learning note</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/03/install-docker-compose-on-ReapberryPi/">install docker-compose on ReapberryPi</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/03/firewalld-command-cheet-sheet/">firewalld command cheet sheet</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/03/bash-command-cheet-sheet/">bash command cheet sheet</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash/" rel="tag">bash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos8/" rel="tag">centos8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mqtt/" rel="tag">mqtt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/" rel="tag">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/" rel="tag">vim</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/bash/" style="font-size: 16.67px;">bash</a> <a href="/tags/centos8/" style="font-size: 13.33px;">centos8</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/mqtt/" style="font-size: 10px;">mqtt</a> <a href="/tags/npm/" style="font-size: 10px;">npm</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Chen Yinghua<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
