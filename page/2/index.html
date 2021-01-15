@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.0.0">
+<meta name="generator" content="Hexo 5.3.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -156,7 +156,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -200,6 +200,90 @@
 
         <div class="content index posts-expand">
           
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://iintothewind.github.io/2019/10/16/install-language-support-for-centos-8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Chen Yinghua">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="iIntothewind">
+    </span>
+
+    
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/10/16/install-language-support-for-centos-8/" class="post-title-link" itemprop="url">install language support for centos 8</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-10-16 11:48:25" itemprop="dateCreated datePublished" datetime="2019-10-16T11:48:25+08:00">2019-10-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-01 19:52:27" itemprop="dateModified" datetime="2020-08-01T19:52:27+08:00">2020-08-01</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="如何在centos-8-stream上通过命令正确的安装中文语言支持"><a href="#如何在centos-8-stream上通过命令正确的安装中文语言支持" class="headerlink" title="如何在centos 8 stream上通过命令正确的安装中文语言支持"></a>如何在centos 8 stream上通过命令正确的安装中文语言支持</h2><p>Recently I have been using centos 8 stream on vagrant.<br>I used <code>zh_CN.UTF-8</code> on my host env as this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LC_CTYPE&#x3D;zh_CN.UTF-8</span><br><span class="line">LC_ALL&#x3D;zh_CN.UTF-8</span><br></pre></td></tr></table></figure>
+
+<p>But after SSH login to centos, such error message dispayed before the prompt line:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-bash: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br><span class="line">&#x2F;bin&#x2F;sh: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br><span class="line">&#x2F;bin&#x2F;sh: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br><span class="line">&#x2F;bin&#x2F;sh: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br><span class="line">-bash: warning: setlocale: LC_ALL: cannot change locale (zh_CN.UTF-8)</span><br></pre></td></tr></table></figure>
+
+<p>Usually this is not such a big issue, but it is really annoying.<br>It means currently the system dose not support chinese characters in console output. So there could be junk code dispayed when it tries to dispay chinese characters.</p>
+<p>By solving this problem, I need to install language support for centos 8 stream.</p>
+<p>I have searched almost all the internet, but still not found any guides which can tell me what the right package can be used to add chinese language support.</p>
+<p>The similar pages are all for centos 7 and previous versions, and these packages are no longer existing.</p>
+<p>At the end, I found this one on redhat official document website:<br><a target="_blank" rel="noopener" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_basic_system_settings/installing-using-langpacks">INSTALLING AND USING LANGPACKS</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">7.2.2. Installing language support</span><br><span class="line">To add new a language support, run the following command as the root user:</span><br><span class="line"></span><br><span class="line">~]# yum install langpacks-&lt;locale_code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>On centos 8, <code>yum</code> is not suggested so we can use <code>dnf</code>.<br>So the right way to install chinese language support is:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">sudo dnf search langpacks*</span><br><span class="line">&#x3D;&#x3D;&#x3D; Name Matched: langpacks* &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">langpacks-si.noarch : Sinhala langpacks meta-package</span><br><span class="line">langpacks-sk.noarch : Slovak langpacks meta-package</span><br><span class="line">langpacks-sl.noarch : Slovenian langpacks meta-package</span><br><span class="line">langpacks-sq.noarch : Albanian langpacks meta-package</span><br><span class="line">langpacks-sr.noarch : Serbian langpacks meta-package</span><br><span class="line">langpacks-ss.noarch : Swati langpacks meta-package</span><br><span class="line">langpacks-sv.noarch : Swedish langpacks meta-package</span><br><span class="line">langpacks-ta.noarch : Tamil langpacks meta-package</span><br><span class="line">langpacks-te.noarch : Telugu langpacks meta-package</span><br><span class="line">langpacks-th.noarch : Thai langpacks meta-package</span><br><span class="line">langpacks-tn.noarch : Tswana langpacks meta-package</span><br><span class="line">langpacks-tr.noarch : Turkish langpacks meta-package</span><br><span class="line">langpacks-ts.noarch : Tsonga langpacks meta-package</span><br><span class="line">langpacks-uk.noarch : Ukrainian langpacks meta-package</span><br><span class="line">langpacks-ur.noarch : Urdu langpacks meta-package</span><br><span class="line">langpacks-ve.noarch : Venda langpacks meta-package</span><br><span class="line">langpacks-vi.noarch : Vietnamese langpacks meta-package</span><br><span class="line">langpacks-xh.noarch : Xhosa langpacks meta-package</span><br><span class="line">langpacks-zu.noarch : Zulu langpacks meta-package</span><br><span class="line">langpacks-ast.noarch : Asturian langpacks meta-package</span><br><span class="line">langpacks-mai.noarch : Maithili langpacks meta-package</span><br><span class="line">langpacks-nso.noarch : Northern Sotho langpacks meta-package</span><br><span class="line">langpacks-zh_CN.noarch : Simplified Chinese langpacks meta-package</span><br><span class="line">langpacks-en_GB.noarch : English (United Kingdom) langpacks meta-package</span><br><span class="line">langpacks-pt_BR.noarch : Portuguese (Brazil) langpacks meta-package</span><br><span class="line">langpacks-zh_CN.noarch : Simplified Chinese langpacks meta-package</span><br><span class="line">langpacks-zh_TW.noarch : Traditional Chinese langpacks meta-package</span><br></pre></td></tr></table></figure>
+
+<p>It shows a list of provided language packs for you to install.<br>If you choose <code>langpacks-zh_CN</code> to install, then just use:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo dnf install langpacks-zh_CN</span><br><span class="line">sudo dnf install glibc-langpack-zh</span><br></pre></td></tr></table></figure>
+
+<p>Then chinese language support is installed.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -416,7 +500,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
